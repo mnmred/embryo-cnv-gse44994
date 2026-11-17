@@ -1,0 +1,22 @@
+name: bioenv
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # --- Python ---
+  - python=3.12
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - jupyterlab
+  - ipykernel
+  - biopython
+  # --- R ---
+  - r-base=4.4
+  - r-tidyverse
+  - r-irkernel             # R in Jupyter notebooks
+  - r-languageserver       # R autocompletion in VS Code
+  - r-httpgd               # R plot viewer in VS Code
+  - r-biocmanager
