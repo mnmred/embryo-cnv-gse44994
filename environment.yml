@@ -1,9 +1,20 @@
+# bioenv: GSE44994 CNV analysis (Affymetrix Mapping 250K Nsp, GPL3718)
+#
+# Setup:   conda-lock install -n bioenv conda-lock.yml && conda activate bioenv
+# Update:  edit this file
+#          conda env update -n bioenv -f environment.yml --prune
+#          conda-lock -f environment.yml -p linux-64
+#          commit environment.yml + conda-lock.yml
+#
+# R is pinned to 4.4: bioconda builds new Bioconductor releases for R 4.5 only,
+# but bioconductor-copynumber has no R 4.5 build.
+
 name: bioenv
 channels:
   - conda-forge
   - bioconda
 dependencies:
-  # --- Python ---
+  # ---------------- Python ----------------
   - python=3.12
   - numpy
   - pandas
@@ -12,11 +23,33 @@ dependencies:
   - seaborn
   - jupyterlab
   - ipykernel
-  - biopython
-  # --- R ---
+  - pyarrow            
+  - numba              
+  - statsmodels        
+  - scikit-learn       
+  - ruptures           
+  - hmmlearn           
+  - geoparse           
+  - tqdm
+
+  # ---------------- R ----------------
   - r-base=4.4
   - r-tidyverse
-  - r-irkernel             # R in Jupyter notebooks
-  - r-languageserver       # R autocompletion in VS Code
-  - r-httpgd               # R plot viewer in VS Code
-  - r-biocmanager
+  - r-data.table       
+  - r-irkernel
+  - r-languageserver
+  - r-httpgd
+  # CEL files -> A/B intensities, genotypes -> BAF / LRR
+  - bioconductor-oligo                 # read.celfiles(), snprma(), crlmm()
+  - bioconductor-pd.mapping250k.nsp    # platform design for GPL3718
+  # segmentation baselines, metadata, genomic comparison
+  - bioconductor-dnacopy               # CBS on LRR
+  - bioconductor-copynumber            # aspcf: joint LRR + BAF segmentation
+  - bioconductor-geoquery
+  - bioconductor-genomicranges
+  - bioconductor-rtracklayer           # liftOver hg18 <-> hg19
+
+  # ---------------- Report ----------------
+  - quarto
+  - r-rmarkdown
+  - r-knitr
