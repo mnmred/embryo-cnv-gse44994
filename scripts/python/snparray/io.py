@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from .paths import Layout
 
 
 # series matrix
@@ -51,4 +52,17 @@ def read_genotype_calls(series_matrix: Path) -> pd.DataFrame:
     gt.index.name = "probe"
     return gt
 
+# step 03
+def load_probe_intensities(layout: Layout):
+    """Normalised log2 probe intensities written by scripts/R/02_normalize_cel.R.
 
+    Returns (x, probes, gsm):
+      x       float32 array, probes x arrays
+      probes  table with fid, fsetid (SNP id), allele (0 = A, 1 = B), strand
+      gsm     GSM id of each array (column order of x)
+    """
+    probes = pd.read_csv(layout.probe_table, sep="\t")
+    cels = layout.cel_order.read_text().split()
+    x = np.fromfile(layout.probe_intensities, dtype=np.float32).reshape(len(cels), len(probes)).T
+    gsm = [c.split("_")[0] for c in cels]
+    return np.ascontiguousarray(x), probes, gsm
