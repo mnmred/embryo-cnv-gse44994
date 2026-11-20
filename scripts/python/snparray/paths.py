@@ -49,3 +49,23 @@ class Layout:
     def signal(self, kind: str) -> Path:
         """kind = 'total' (all probes), 'A' or 'B' (allele-specific probes)."""
         return self.root / f"signal_{kind}.parquet"
+
+    # step 04 - LRR -----------------------------------------------------------------
+    @property
+    def lrr(self) -> Path:
+        return self.root / "lrr.parquet"
+
+    @property
+    def arrays(self) -> Path:
+        """one row per array: sex call and LRR noise measures"""
+        return self.root / "arrays.tsv"
+
+    @property
+    def calibration(self) -> Path:
+        return self.root / "calibration.tsv"
+
+    @property
+    def snp_annotation(self) -> Path:
+        return self.probe_dir / "snp_annotation.tsv"
+
+   

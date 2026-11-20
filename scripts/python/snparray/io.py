@@ -66,3 +66,48 @@ def load_probe_intensities(layout: Layout):
     x = np.fromfile(layout.probe_intensities, dtype=np.float32).reshape(len(cels), len(probes)).T
     gsm = [c.split("_")[0] for c in cels]
     return np.ascontiguousarray(x), probes, gsm
+
+# step 4
+def load_snp_annotation(layout: Layout) -> pd.DataFrame:
+    """SNPs on chromosomes 1-22 and X, sorted by chromosome and position.
+
+    Columns: fsetid (internal id), probe (SNP name, e.g. SNP_A-1780419), chr (X = 23),
+    pos (hg19 bp), cytoband, frag_len (PCR fragment length), gc (probe GC fraction).
+    Every SNP-level matrix in this pipeline uses this row order."""
+    ann = pd.read_csv(layout.snp_annotation, sep="\t", dtype={"chrom": str})
+    ann = ann[ann.chrom.notna()].copy()                       # drop control probes
+    ann["chr"] = ann.chrom.replace({"X": "23"}).astype(int)
+    ann = ann.rename(columns={"man_fsetid": "probe", "physical_pos": "pos"})
+    ann = ann.sort_values(["chr", "pos"]).reset_index(drop=True)
+    return ann[["fsetid", "probe", "chr", "pos", "cytoband", "frag_len", "gc"]]
+
+
+def sample_names(layout: Layout) -> dict:
+    """GSM id -> sample name (e.g. GSM1095396 -> SNP018ZXP2)."""
+    meta = pd.read_csv(layout.metadata, sep="\t")
+    return dict(zip(meta.gsm, meta["sample"]))
+
+
+def load_signals(layout: Layout, snps: pd.DataFrame, kinds=("total", "A", "B")) -> dict:
+    """Per-SNP log2 signals from step 03, rows in `snps` order, columns renamed
+    from GSM ids to sample names."""
+    names = sample_names(layout)
+    out = {}
+    for kind in kinds:
+        s = pd.read_parquet(layout.signal(kind)).loc[snps.fsetid.values]
+        out[kind] = s.rename(columns=names).reset_index(drop=True)
+    return out
+
+def save_snp_matrix(values: np.ndarray, snps: pd.DataFrame, samples: list, path: Path) -> None:
+    """Save a SNP x array matrix (LRR or BAF) with the annotation columns in front.
+
+    Written twice: `path` as parquet (fast, small, for Python) and the same name
+    with .csv (readable anywhere: R, Excel; 4 decimals is far below the noise)."""
+    ANNOTATION_COLUMNS = ["probe", "chr", "pos", "cytoband"]
+    table = pd.concat([snps[ANNOTATION_COLUMNS].reset_index(drop=True),
+                       pd.DataFrame(values.astype(np.float32), columns=samples)], axis=1)
+    table.to_parquet(path)
+    table.to_csv(path.with_suffix(".csv"), index=False, float_format="%.4f")
+
+
+
