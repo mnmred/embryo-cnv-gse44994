@@ -68,4 +68,15 @@ class Layout:
     def snp_annotation(self) -> Path:
         return self.probe_dir / "snp_annotation.tsv"
 
-   
+    @property
+    def baf(self) -> Path:
+        return self.root / "baf.parquet"
+
+    @property
+    def snp_info(self) -> Path:
+        """one row per SNP: genotype-cluster centres and population B-allele frequency"""
+        return self.root / "snp_info.parquet"
+
+    @property
+    def baf_qc(self) -> Path:
+        return self.root / "baf_qc.tsv"

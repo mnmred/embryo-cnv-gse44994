@@ -110,4 +110,19 @@ def save_snp_matrix(values: np.ndarray, snps: pd.DataFrame, samples: list, path:
     table.to_csv(path.with_suffix(".csv"), index=False, float_format="%.4f")
 
 
+def load_genotypes(layout: Layout, snps: pd.DataFrame, samples: list) -> np.ndarray:
+    """Authors' genotype calls aligned to `snps` rows and `samples` columns (int8)."""
+    NO_CALL = -1
+    calls = pd.read_parquet(layout.genotype_calls)
+    calls = calls.rename(columns=sample_names(layout))
+    # put the rows in the same SNP order as the signals.
+    calls = calls.reindex(snps.probe.values)
+    # put the columns in the same embryo order as the signals
+    calls = calls[samples]
+    calls = calls.fillna(NO_CALL).astype("int8")
+
+    return calls.values 
+
+
+
 
