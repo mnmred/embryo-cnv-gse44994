@@ -50,7 +50,7 @@ class Layout:
         """kind = 'total' (all probes), 'A' or 'B' (allele-specific probes)."""
         return self.root / f"signal_{kind}.parquet"
 
-    # step 04 - LRR -----------------------------------------------------------------
+    # step 04 - LRR 
     @property
     def lrr(self) -> Path:
         return self.root / "lrr.parquet"
@@ -80,3 +80,33 @@ class Layout:
     @property
     def baf_qc(self) -> Path:
         return self.root / "baf_qc.tsv"
+
+    # step 06 
+    @property
+    def lrr_tsv(self) -> Path:
+        """lrr.parquet as a gzipped text table, for R (step 06a)"""
+        return self.root / "lrr.tsv.gz"
+
+    @property
+    def baf_tsv(self) -> Path:
+        """baf.parquet as a gzipped text table, for R (step 06a)"""
+        return self.root / "baf.tsv.gz"
+
+    def segments_raw(self, method: str) -> Path:
+        """pieces cut by an R method (step 06b: ASPCF), before copy numbers"""
+        return self.root / f"segments_raw_{method}.tsv"
+
+    def segments(self, method: str) -> Path:
+        """every segment of every array with its tests and final copy number
+        (method = ASPCF from step 06c, or HMM from the alternative step)"""
+        return self.root / f"segments_{method}.tsv"
+
+    def cnv_calls(self, method: str) -> Path:
+        """only the reported (abnormal) segments of one method"""
+        return self.root / f"cnv_calls_{method}.tsv"
+
+    @property
+    def call_noise(self) -> Path:
+        """per array: noise of 50-SNP bins (sigma) and of whole arms (tau), step 06c"""
+        return self.root / "call_noise.tsv"
+
