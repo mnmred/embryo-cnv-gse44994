@@ -12,10 +12,10 @@ called the same way.
                     then test every joined piece and give it a copy number
 
 A piece is reported when all three hold:
-    |z| >= 3            z = (mean LRR - normal LRR) / sqrt(sigma^2 * 50 / n_snps + tau^2)
+    |z| >= 3            z = (median LRR - normal LRR) / sqrt(sigma^2 * 50 / n_snps + tau^2)
                         sigma: noise of 50-SNP averages; tau: amplification moves whole arms
                         a little, which does not average away over many SNPs
-    |change| >= 0.4     copies gained (+) or lost (-) per cell, from the mean LRR
+    |change| >= 0.4     copies gained (+) or lost (-) per cell, from the median LRR
                         (lrr.copies_from_lrr); >= 0.8 is "full", 0.4-0.8 "mosaic"
     size >= 2.36 Mb     for full calls (the authors' minimum); 10 Mb for mosaic calls
 Pieces with |change| < 0.4, and pieces that fail a test, keep the normal copy number.
@@ -95,9 +95,9 @@ def call_segments(segments: pd.DataFrame, y: np.ndarray, pos: np.ndarray, cytoba
     same way (gain, loss, or less than 0.4 copies either way). Every joined piece is
     tested (see the module docstring). One row per joined piece:
     chr, start, end, size_mb, cytoband, n_snps, n_pieces, row_start, row_end,
-    mean_lrr, change, z, reported, copies (final), kind (normal / full / mosaic)."""
+    mean_lrr (holds the median), change, z, reported, copies (final), kind (normal / full / mosaic)."""
     def change_of(c, i, j):
-        return float(copies_from_lrr(y[i:j].mean(), alpha)) - normal_copies(c, n_x, pos[i:j])
+        return float(copies_from_lrr(np.median(y[i:j]), alpha)) - normal_copies(c, n_x, pos[i:j])
 
     runs = []                                   # [chr, row_start, row_end, direction, n_pieces]
     for p in segments.sort_values("row_start").itertuples():
@@ -112,9 +112,9 @@ def call_segments(segments: pd.DataFrame, y: np.ndarray, pos: np.ndarray, cytoba
     rows = []
     for c, i, j, direction, n_pieces in runs:
         normal = normal_copies(c, n_x, pos[i:j])
-        mean = float(y[i:j].mean())
+        level = float(np.median(y[i:j]))
         change = change_of(c, i, j)
-        z = (mean - float(expected_lrr(normal, alpha))) / np.sqrt(sigma ** 2 * BIN_SIZE / (j - i) + tau ** 2)
+        z = (level - float(expected_lrr(normal, alpha))) / np.sqrt(sigma ** 2 * BIN_SIZE / (j - i) + tau ** 2)
         size = pos[j - 1] - pos[i]
         kind = "full" if abs(change) >= FULL_CHANGE else "mosaic"
         reported = bool(direction != 0 and abs(z) >= MIN_Z and abs(change) >= MIN_CHANGE
@@ -125,6 +125,6 @@ def call_segments(segments: pd.DataFrame, y: np.ndarray, pos: np.ndarray, cytoba
             copies, kind = normal, "normal"
         rows.append(dict(chr=int(c), start=int(pos[i]), end=int(pos[j - 1]), size_mb=size / 1e6,
                          cytoband=f"{cytoband[i]}-{cytoband[j - 1]}", n_snps=int(j - i), n_pieces=n_pieces,
-                         row_start=int(i), row_end=int(j), mean_lrr=mean, change=change, z=float(z),
+                         row_start=int(i), row_end=int(j), mean_lrr=level, change=change, z=float(z),
                          reported=reported, copies=float(copies), kind=kind))
     return pd.DataFrame(rows)
