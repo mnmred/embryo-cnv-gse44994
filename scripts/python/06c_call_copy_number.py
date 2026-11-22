@@ -4,7 +4,7 @@ Run:     python scripts/python/06c_call_copy_number.py         (~10 s)
 Reads:   data/processed/segments_raw_ASPCF.tsv (step 06b), lrr.parquet, arrays.tsv,
          calibration.tsv (step 04)
 Writes:  data/processed/segments_ASPCF.tsv   every joined segment of every array: position,
-                                             mean LRR, change, z, final copy number and kind
+                                             median LRR, change, z, final copy number and kind
          data/processed/cnv_calls_ASPCF.tsv  only the reported (abnormal) segments
          data/processed/call_noise.tsv       per array: sigma (50-SNP averages), tau (arms)
 
