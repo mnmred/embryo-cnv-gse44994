@@ -1,0 +1,15 @@
+# ml_env: machine-learning copy-number caller (scripts/python/ml)
+#
+# Separate from bioenv so the main pipeline's environment stays untouched.
+# Setup:   conda env create -f ml_env.yml && conda activate ml_env
+# No conda-lock file: this is a trial environment.
+
+name: ml_env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy
+  - pandas
+  - pyarrow            # reads the .parquet tables of the main pipeline
+  - scikit-learn       # boosted trees and logistic regression
