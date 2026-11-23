@@ -1,0 +1,24 @@
+# ascat_env: ASCAT trial on GSE44994 (Affymetrix Mapping 250K Nsp, GPL3718)
+#
+# Separate from bioenv so the main pipeline's environment stays untouched.
+# Setup:   conda env create -f ascat_env.yml && conda activate ascat_env
+#          Rscript scripts/R/ascat/00_install_sfit.R
+#          (sfit, needed by CRMA v2, is not in conda: built from the author's source, v0.3.2)
+# No conda-lock file yet: this is a trial environment.
+#
+# R is pinned to 4.4, like bioenv (bioconda's ascat build targets R 4.4).
+
+name: ascat_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.4
+  - r-data.table
+  # copy-number states from LRR + BAF
+  - ascat                          # R package ASCAT (VanLoo-lab/ascat)
+  # CEL files -> LRR and BAF with existing R tools (CRMA v2)
+  - r-aroma.affymetrix             # doCRMAv2(), getAverageFile(), extractTotalAndFreqB()
+  - bioconductor-affxparser        # reads CEL / CDF files for aroma
+  - bioconductor-aroma.light       # normalisation methods used by CRMA v2
+  - bioconductor-preprocesscore    # robust fit of the probe summarisation (RmaCnPlm)
