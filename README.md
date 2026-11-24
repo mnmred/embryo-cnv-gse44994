@@ -87,4 +87,13 @@ To include gradient boosting on CRMA, do this before running `02_evaluate.py`:
 2. Set `OUTPUT_FOLDER` to `data/evaluation/crma_ml`.
 3. Run `01_train_and_call.py` again.
 
+**5. Figures** (`bioenv`). Written to `results/figures/evaluation/`:
+
+```bash
+python scripts/python/evaluation/03_figures.py
+Rscript scripts/R/07_evaluation_figures.R
+```
+
 Data: Xiong et al. 2014, [Genomics Data 2:92–95](https://pmc.ncbi.nlm.nih.gov/articles/PMC4535754/).
+
+AI Use: AI code assistance was used to accelerate the coding process. Any generated code has been carefully reviewed and adapted. The author takes full responsibility for the code.
