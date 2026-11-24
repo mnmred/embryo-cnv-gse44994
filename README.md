@@ -12,6 +12,7 @@ This repo finds copy-number changes in 47 embryo biopsies, starting from the raw
 | Quality check | Against the authors' results and the parents' karyotypes | `scripts/python/evaluation/` |
 | Existing methods | CRMA v2 (`aroma.affymetrix`) and ASCAT | `scripts/R/ascat/` |
 | Something extra | Gradient boosting (`scikit-learn`) trained on simulated segments | `scripts/python/ml/` |
+| Figures | From the evaluation tables (`matplotlib`) and from the pipeline's own files (`ggplot2`) | `scripts/python/evaluation/03_*`, `scripts/R/07_evaluation_*` |
 
 ## Environment
 
